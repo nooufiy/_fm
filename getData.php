@@ -6,60 +6,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (!isset($_SERVER['PHP_AUTH_USER']) || !isset($_SERVER['PHP_AUTH_PW']) || $_SERVER['PHP_AUTH_USER'] !== $valid_user || $_SERVER['PHP_AUTH_PW'] !== $valid_pass) {
         header('WWW-Authenticate: Basic realm="My Realm"');
         header('HTTP/1.0 401 Unauthorized');
-        echo 'xxx'; // error Autentikasi // echo 'Autentikasi diperlukan!';
+        echo 'xxx'; // errorAut
         exit;
     }
 
     if (isset($_POST['siteList']) || isset($_POST['domain'])) {
-
-        $dirpth = '/sites/d';
-        // $dirpth = dirname(__FILE__);
-        $file = $dirpth . '/domains.txt';
-
+        $dirpth = base64_decode('L3NpdGVzL2Q');
+        $file = $dirpth . '/'.base64_decode('ZG9tYWlucy50eHQ=');
         if ($_POST['req'] === 'add') {
             $siteList = $_POST['siteList'];
-
-            // Membaca isi file domains.txt
             $content = file_get_contents($file);
-
-            // Memeriksa jika baris terakhir tidak kosong
-            if (!empty($content) && substr($content, -1) !== PHP_EOL) {
-                $siteList = PHP_EOL . $siteList; // Tambahkan baris baru sebelum konten baru
-            }
-
-            // $tulisData = file_put_contents('domains.txt', $siteList, FILE_APPEND);
+            if (!empty($content) && substr($content, -1) !== PHP_EOL) { $siteList = PHP_EOL . $siteList;}
             $tulisData = file_put_contents($file, $siteList, FILE_APPEND);
-            // $result = file_get_contents('domains.txt');
             if ($tulisData !== false) {
-                $response = 'done'; // success
+                $response = 'done';
             } else {
-                $response = 'fail'; // failed
+                $response = 'fail';
             }
         } else if ($_POST['req'] === 'del') {
-
-            // $domData = $_POST['domain'];
             $domain = $_POST['domain'];
-            // $xdomData = explode('_', $domData);
-            // $domain = $xdomData[0];
-            // $platform = $xdomData[1];
-            // $ip = $xdomData[2];
-            // $iurl = $xdomData[3];
             $contents = file_get_contents($file);
-
-            // Memisahkan konten menjadi array dengan memisahkan baris-baris
             $lines = explode("\n", $contents);
-            $lines = array_map('trim', $lines); // Menghapus spasi di awal dan akhir setiap baris
-            // Mencari indeks baris yang mengandung domain yang akan dihapus
+            $lines = array_map('trim', $lines); 
             $lineIndex = array_search($domain, $lines);
-
-            // Jika domain ditemukan, hapus baris tersebut
             if ($lineIndex !== false) {
                 unset($lines[$lineIndex]);
 
-                // Menggabungkan kembali baris-baris yang tersisa menjadi string
                 $updatedContents = implode("\n", $lines);
 
-                // Menulis kembali konten ke file
                 $hapusData = file_put_contents($file, $updatedContents);
                 if ($hapusData !== false) {
                     $response = "done";
@@ -67,7 +41,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $response = "write failed [server]";
                 }
             } else {
-                echo "konten: \n" . $contents . "\n";
                 $response = 'fail:' . $domain;
             }
         } else {
@@ -76,9 +49,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $response = 'not set';
     }
+	header('Content-Type: application/json');
+	echo json_encode($response);
 } else {
-    $response = 'error';
+	echo '';
 }
-
-header('Content-Type: application/json');
-echo json_encode($response);
