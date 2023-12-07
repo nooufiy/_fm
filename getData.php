@@ -1,3 +1,4 @@
+<?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $valid_user = 'user';
     $valid_pass = 'password';
