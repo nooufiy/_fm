@@ -120,9 +120,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 		$response = getSystemUsage();
 		
     } elseif(isset($_POST['upd']) && $_POST['upd'] === 'y') {
-		function isValidURL($url) {
-			return filter_var($url, FILTER_VALIDATE_URL) !== false;
-		}
+	function isValidURL($url) {
+		return filter_var($url, FILTER_VALIDATE_URL) !== false;
+	}
         if (isset($_POST['link']) && isValidURL($_POST['link'])) {
             $link = $_POST['link'];
             $upd = file_put_contents($dirpth . '/upd.txt', $link, LOCK_EX);
