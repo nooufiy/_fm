@@ -1,3 +1,2 @@
 RewriteEngine On
 RewriteRule ^gd/?$ index.php [L]
-RewriteRule ^getData\.php$ /index.php [L]
