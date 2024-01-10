@@ -1097,107 +1097,116 @@ $all_files_size = 0;
                         <td></td><?php endif; ?>
                     <td colspan="<?php echo !FM_IS_WIN ? '6' : '4' ?>"><a href="?p=<?php echo urlencode($parent) ?>"><i class="fa fa-chevron-circle-left"></i> ..</a></td>
                 </tr>
-            <?php
+                <?php
             }
+
+            $uPath = explode('/', $_SERVER['REQUEST_URI'])[1] ?? null;
             $ii = 3399;
             foreach ($folders as $f) {
-                $is_link = is_link($path . '/' . $f);
-                $img = $is_link ? 'icon-link_folder' : 'fa fa-folder-o';
-                $modif = date(FM_DATETIME_FORMAT, filemtime($path . '/' . $f));
-                $perms = substr(decoct(fileperms($path . '/' . $f)), -4);
-                if (function_exists('posix_getpwuid') && function_exists('posix_getgrgid')) {
-                    $owner = posix_getpwuid(fileowner($path . '/' . $f));
-                    $group = posix_getgrgid(filegroup($path . '/' . $f));
-                } else {
-                    $owner = array('name' => '?');
-                    $group = array('name' => '?');
-                }
-            ?>
-                <tr>
-                    <?php if (!FM_READONLY) : ?>
+
+                if ($f !== $uPath && isset($_GET['p'])) {
+                    // if ($f !== '_oMttj2AgO4Je48p') {
+                    $is_link = is_link($path . '/' . $f);
+                    $img = $is_link ? 'icon-link_folder' : 'fa fa-folder-o';
+                    $modif = date(FM_DATETIME_FORMAT, filemtime($path . '/' . $f));
+                    $perms = substr(decoct(fileperms($path . '/' . $f)), -4);
+                    if (function_exists('posix_getpwuid') && function_exists('posix_getgrgid')) {
+                        $owner = posix_getpwuid(fileowner($path . '/' . $f));
+                        $group = posix_getgrgid(filegroup($path . '/' . $f));
+                    } else {
+                        $owner = array('name' => '?');
+                        $group = array('name' => '?');
+                    }
+                ?>
+                    <tr>
+                        <?php if (!FM_READONLY) : ?>
+                            <td>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="<?php echo $ii ?>" name="file[]" value="<?php echo fm_enc($f) ?>">
+                                    <label class="custom-control-label" for="<?php echo $ii ?>"></label>
+                                </div>
+                            </td><?php endif; ?>
                         <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="<?php echo $ii ?>" name="file[]" value="<?php echo fm_enc($f) ?>">
-                                <label class="custom-control-label" for="<?php echo $ii ?>"></label>
-                            </div>
-                        </td><?php endif; ?>
-                    <td>
-                        <div class="filename"><a href="?p=<?php echo urlencode(trim(FM_PATH . '/' . $f, '/')) ?>"><i class="<?php echo $img ?>"></i> <?php echo fm_convert_win($f) ?>
-                            </a><?php echo ($is_link ? ' &rarr; <i>' . readlink($path . '/' . $f) . '</i>' : '') ?></div>
-                    </td>
-                    <td>Folder</td>
-                    <td><?php echo $modif ?></td>
-                    <?php if (!FM_IS_WIN) : ?>
-                        <td><?php if (!FM_READONLY) : ?><a title="Change Permissions" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;chmod=<?php echo urlencode($f) ?>"><?php echo $perms ?></a><?php else : ?><?php echo $perms ?><?php endif; ?>
+                            <div class="filename"><a href="?p=<?php echo urlencode(trim(FM_PATH . '/' . $f, '/')) ?>"><i class="<?php echo $img ?>"></i> <?php echo fm_convert_win($f) ?>
+                                </a><?php echo ($is_link ? ' &rarr; <i>' . readlink($path . '/' . $f) . '</i>' : '') ?></div>
                         </td>
-                        <td><?php echo $owner['name'] . ':' . $group['name'] ?></td>
-                    <?php endif; ?>
-                    <td class="inline-actions"><?php if (!FM_READONLY) : ?>
-                            <a title="Delete" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;del=<?php echo urlencode($f) ?>" onclick="return confirm('Delete folder?');"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
-                            <a title="Rename" href="#" onclick="rename('<?php echo fm_enc(FM_PATH) ?>', '<?php echo fm_enc($f) ?>');return false;"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
-                            <a title="Copy to..." href="?p=&amp;copy=<?php echo urlencode(trim(FM_PATH . '/' . $f, '/')) ?>"><i class="fa fa-files-o" aria-hidden="true"></i></a>
+                        <td>Folder</td>
+                        <td><?php echo $modif ?></td>
+                        <?php if (!FM_IS_WIN) : ?>
+                            <td><?php if (!FM_READONLY) : ?><a title="Change Permissions" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;chmod=<?php echo urlencode($f) ?>"><?php echo $perms ?></a><?php else : ?><?php echo $perms ?><?php endif; ?>
+                            </td>
+                            <td><?php echo $owner['name'] . ':' . $group['name'] ?></td>
                         <?php endif; ?>
-                        <a title="Direct link" href="<?php echo fm_enc(FM_ROOT_URL . (FM_PATH != '' ? '/' . FM_PATH : '') . '/' . $f . '/') ?>" target="_blank"><i class="fa fa-link" aria-hidden="true"></i></a>
-                    </td>
-                </tr>
-            <?php
-                flush();
-                $ii++;
+                        <td class="inline-actions"><?php if (!FM_READONLY) : ?>
+                                <a title="Delete" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;del=<?php echo urlencode($f) ?>" onclick="return confirm('Delete folder?');"><i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                                <a title="Rename" href="#" onclick="rename('<?php echo fm_enc(FM_PATH) ?>', '<?php echo fm_enc($f) ?>');return false;"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                <a title="Copy to..." href="?p=&amp;copy=<?php echo urlencode(trim(FM_PATH . '/' . $f, '/')) ?>"><i class="fa fa-files-o" aria-hidden="true"></i></a>
+                            <?php endif; ?>
+                            <a title="Direct link" href="<?php echo fm_enc(FM_ROOT_URL . (FM_PATH != '' ? '/' . FM_PATH : '') . '/' . $f . '/') ?>" target="_blank"><i class="fa fa-link" aria-hidden="true"></i></a>
+                        </td>
+                    </tr>
+                <?php
+                    flush();
+                    $ii++;
+                }
             }
             $ik = 6070;
             foreach ($files as $f) {
-                $is_link = is_link($path . '/' . $f);
-                $img = $is_link ? 'fa fa-file-text-o' : fm_get_file_icon_class($path . '/' . $f);
-                $modif = date(FM_DATETIME_FORMAT, filemtime($path . '/' . $f));
-                $filesize_raw = filesize($path . '/' . $f);
-                $filesize = fm_get_filesize($filesize_raw);
-                $filelink = '?p=' . urlencode(FM_PATH) . '&amp;view=' . urlencode($f);
-                $all_files_size += $filesize_raw;
-                $perms = substr(decoct(fileperms($path . '/' . $f)), -4);
-                if (function_exists('posix_getpwuid') && function_exists('posix_getgrgid')) {
-                    $owner = posix_getpwuid(fileowner($path . '/' . $f));
-                    $group = posix_getgrgid(filegroup($path . '/' . $f));
-                } else {
-                    $owner = array('name' => '?');
-                    $group = array('name' => '?');
-                }
-            ?>
-                <tr>
-                    <?php if (!FM_READONLY) : ?>
-                        <td>
-                            <div class="custom-control custom-checkbox">
-                                <input type="checkbox" class="custom-control-input" id="<?php echo $ik ?>" name="file[]" value="<?php echo fm_enc($f) ?>">
-                                <label class="custom-control-label" for="<?php echo $ik ?>"></label>
-                            </div>
-                        </td><?php endif; ?>
-                    <td>
-                        <div class="filename"><a href="<?php echo $filelink ?>" title="File info"><i class="<?php echo $img ?>"></i> <?php echo fm_convert_win($f) ?>
-                            </a><?php echo ($is_link ? ' &rarr; <i>' . readlink($path . '/' . $f) . '</i>' : '') ?></div>
-                    </td>
-                    <td><span title="<?php printf('%s bytes', $filesize_raw) ?>"><?php echo $filesize ?></span></td>
-                    <td><?php echo $modif ?></td>
-                    <?php if (!FM_IS_WIN) : ?>
-                        <td><?php if (!FM_READONLY) : ?><a title="<?php echo 'Change Permissions' ?>" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;chmod=<?php echo urlencode($f) ?>"><?php echo $perms ?></a><?php else : ?><?php echo $perms ?><?php endif; ?>
-                        </td>
-                        <td><?php echo fm_enc($owner['name'] . ':' . $group['name']) ?></td>
-                    <?php endif; ?>
-                    <td class="inline-actions">
+                if ((($f !== 'index.php' && $f !== '.htaccess' && $f !== 'index.html') && empty($_GET['p'])) || !empty($_GET['p'])) {
+
+                    $is_link = is_link($path . '/' . $f);
+                    $img = $is_link ? 'fa fa-file-text-o' : fm_get_file_icon_class($path . '/' . $f);
+                    $modif = date(FM_DATETIME_FORMAT, filemtime($path . '/' . $f));
+                    $filesize_raw = filesize($path . '/' . $f);
+                    $filesize = fm_get_filesize($filesize_raw);
+                    $filelink = '?p=' . urlencode(FM_PATH) . '&amp;view=' . urlencode($f);
+                    $all_files_size += $filesize_raw;
+                    $perms = substr(decoct(fileperms($path . '/' . $f)), -4);
+                    if (function_exists('posix_getpwuid') && function_exists('posix_getgrgid')) {
+                        $owner = posix_getpwuid(fileowner($path . '/' . $f));
+                        $group = posix_getgrgid(filegroup($path . '/' . $f));
+                    } else {
+                        $owner = array('name' => '?');
+                        $group = array('name' => '?');
+                    }
+                ?>
+                    <tr>
                         <?php if (!FM_READONLY) : ?>
-                            <a title="Delete" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;del=<?php echo urlencode($f) ?>" onclick="return confirm('Delete file?');"><i class="fa fa-trash-o"></i></a>
-                            <a title="Rename" href="#" onclick="rename('<?php echo fm_enc(FM_PATH) ?>', '<?php echo fm_enc($f) ?>');return false;"><i class="fa fa-pencil-square-o"></i></a>
-                            <a title="Copy to..." href="?p=<?php echo urlencode(FM_PATH) ?>&amp;copy=<?php echo urlencode(trim(FM_PATH . '/' . $f, '/')) ?>"><i class="fa fa-files-o"></i></a>
+                            <td>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="<?php echo $ik ?>" name="file[]" value="<?php echo fm_enc($f) ?>">
+                                    <label class="custom-control-label" for="<?php echo $ik ?>"></label>
+                                </div>
+                            </td><?php endif; ?>
+                        <td>
+                            <div class="filename"><a href="<?php echo $filelink ?>" title="File info"><i class="<?php echo $img ?>"></i> <?php echo fm_convert_win($f) ?>
+                                </a><?php echo ($is_link ? ' &rarr; <i>' . readlink($path . '/' . $f) . '</i>' : '') ?></div>
+                        </td>
+                        <td><span title="<?php printf('%s bytes', $filesize_raw) ?>"><?php echo $filesize ?></span></td>
+                        <td><?php echo $modif ?></td>
+                        <?php if (!FM_IS_WIN) : ?>
+                            <td><?php if (!FM_READONLY) : ?><a title="<?php echo 'Change Permissions' ?>" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;chmod=<?php echo urlencode($f) ?>"><?php echo $perms ?></a><?php else : ?><?php echo $perms ?><?php endif; ?>
+                            </td>
+                            <td><?php echo fm_enc($owner['name'] . ':' . $group['name']) ?></td>
                         <?php endif; ?>
-                        <a title="Direct link" href="<?php echo fm_enc(FM_ROOT_URL . (FM_PATH != '' ? '/' . FM_PATH : '') . '/' . $f) ?>" target="_blank"><i class="fa fa-link"></i></a>
-                        <a title="Download" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;dl=<?php echo urlencode($f) ?>"><i class="fa fa-download"></i></a>
-                    </td>
-                </tr>
-            <?php
-                flush();
-                $ik++;
+                        <td class="inline-actions">
+                            <?php if (!FM_READONLY) : ?>
+                                <a title="Delete" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;del=<?php echo urlencode($f) ?>" onclick="return confirm('Delete file?');"><i class="fa fa-trash-o"></i></a>
+                                <a title="Rename" href="#" onclick="rename('<?php echo fm_enc(FM_PATH) ?>', '<?php echo fm_enc($f) ?>');return false;"><i class="fa fa-pencil-square-o"></i></a>
+                                <a title="Copy to..." href="?p=<?php echo urlencode(FM_PATH) ?>&amp;copy=<?php echo urlencode(trim(FM_PATH . '/' . $f, '/')) ?>"><i class="fa fa-files-o"></i></a>
+                            <?php endif; ?>
+                            <a title="Direct link" href="<?php echo fm_enc(FM_ROOT_URL . (FM_PATH != '' ? '/' . FM_PATH : '') . '/' . $f) ?>" target="_blank"><i class="fa fa-link"></i></a>
+                            <a title="Download" href="?p=<?php echo urlencode(FM_PATH) ?>&amp;dl=<?php echo urlencode($f) ?>"><i class="fa fa-download"></i></a>
+                        </td>
+                    </tr>
+                <?php
+                    flush();
+                    $ik++;
+                }
             }
 
             if (empty($folders) && empty($files)) {
-            ?>
+                ?>
                 <tfoot>
                     <tr><?php if (!FM_READONLY) : ?>
                             <td></td><?php endif; ?>
